@@ -66,13 +66,13 @@ Capistrano::Configuration.instance(:must_exist).load do
       task :reload, :roles => :db do
         send(run_method, "/etc/init.d/mysql reload")
       end
-     
+
 
       # Extras (not sure if they still work) 
       # Create a database
       task :create_database, :roles => :db do
         cmd = "CREATE DATABASE IF NOT EXISTS #{db_name}"
-        run "mysql -u #{mysql_admin_user} -p -e '#{cmd}'" do |channel, stream, data|
+        run "mysql -u #{mysql_admin_user} #{mysql_admin_pass.blank? ? '' : '-p'} -e '#{cmd}'" do |channel, stream, data|
           if data =~ /^Enter password:/
              channel.send_data "#{mysql_admin_pass}\n"
            end
