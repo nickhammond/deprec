@@ -6,7 +6,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :app_group_prefix,  'app_'
   set(:app_group) { app_group_prefix + application }
   set(:app_user_homedir) { deploy_to }
-  set :database_yml_in_scm, true
+  set :database_yml_in_scm, false
   set :app_symlinks, nil
   set :rails_env, 'production'
   set :gems_for_project, nil # Array of gems to be installed for app
