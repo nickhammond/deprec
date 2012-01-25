@@ -241,7 +241,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       desc "Link in the production database.yml" 
       task :symlink_database_yml, :roles => :app do
-        run "#{sudo} ln -nfs #{shared_path}/config/database.yml #{current_path}/config/database.yml" 
+        run "#{sudo} ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml" 
       end
       
       desc "Copy database.yml to shared/config/database.yml. Useful if not kept in scm"
