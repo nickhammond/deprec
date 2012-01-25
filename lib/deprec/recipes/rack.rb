@@ -11,15 +11,13 @@ Capistrano::Configuration.instance(:must_exist).load do
         top.deprec.ruby.install       # Uses ruby_vm_type
         gem2.install 'bundler'
         # Some things Rails needs
-        apt.install( { :base => %w(libmysqlclient15-dev sqlite3 libsqlite3-ruby libsqlite3-dev libpq-dev) }, :stable)
+        apt.install( { :base => %w(libmysqlclient15-dev sqlite3 libsqlite3-ruby libsqlite3-dev libpq-dev libxslt-dev libxml2-dev) }, :stable)
 
-        top.deprec.web.install        # Uses web_server_type 
+        top.deprec.web.install        # Uses web_server_type
         top.deprec.app.install        # Uses app_server_type
-        # top.deprec.rails.install
-        top.deprec.logrotate.install  
-        # top.deprec.monit.install    # Not using monit lately
+        top.deprec.logrotate.install
       end
-      
+
       desc "Generate config files for rack app."
       task :config_gen do
         top.deprec.web.config_gen_project
