@@ -15,6 +15,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         top.deprec.web.install        # Uses web_server_type
         top.deprec.app.install        # Uses app_server_type
+        top.deprec.db.install
         top.deprec.logrotate.install
       end
 
