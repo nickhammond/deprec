@@ -20,9 +20,11 @@ Capistrano::Configuration.instance(:must_exist).load do
       task :install, :roles => :web do
         install_deps
         deprec2.download_src(SRC_PACKAGES[:nginx], src_dir)
-        deprec2.install_from_src(SRC_PACKAGES[:nginx], src_dir)
+        run "#{sudo} passenger-install-nginx-module _#{passenger_version}_ --auto --extra-configure-flags=--with-http_ssl_module --nginx-source-dir=#{src_dir}" 
+        # deprec2.install_from_src(SRC_PACKAGES[:nginx], src_dir)
         create_nginx_user
         initial_config
+        config_gen
         activate
         start
       end
@@ -60,9 +62,9 @@ Capistrano::Configuration.instance(:must_exist).load do
           :mode => 0644,
           :owner => 'root:root'}
       ]
-      
+
       PROJECT_CONFIG_FILES[:nginx] = [
-           
+
         {:template => 'logrotate.conf.erb',
          :path => "logrotate.conf", 
          :mode => 0644,
@@ -74,7 +76,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           deprec2.render_template(:nginx, file.merge(:remote => true))
         end
       end
-      
+
       desc <<-DESC
       Generate nginx config from template. Note that this does not
       push the config to the server, it merely generates required

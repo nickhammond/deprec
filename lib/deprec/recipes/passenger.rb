@@ -3,7 +3,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :deprec do 
     namespace :passenger do
 
-      set :passenger_version, '3.0.7'    
+      set :passenger_version, '3.0.7'
       set(:passenger_root) { capture("passenger-config --root").chomp }
       set(:passenger_ruby) { capture("which ruby").chomp }
 
@@ -32,7 +32,11 @@ Capistrano::Configuration.instance(:must_exist).load do
       task :install, :roles => :app do
         install_deps
         gem2.install 'passenger', passenger_version
-        run "#{sudo} passenger-install-apache2-module _#{passenger_version}_ --auto"
+        if web_server_type == :nginx
+          deprec2.nginx.install
+        else
+          run "#{sudo} passenger-install-apache2-module _#{passenger_version}_ --auto"
+        end
         config_system
       end
       
@@ -61,14 +65,19 @@ Capistrano::Configuration.instance(:must_exist).load do
           :path => "apache_vhost",
           :mode => 0755,
           :owner => 'root:root'},
-          
+
         {:template => 'logrotate.conf.erb',
          :path => "logrotate.conf", 
          :mode => 0644,
-         :owner => 'root:root'}
+         :owner => 'root:root'},
+
+        { :template => 'rails_nginx_vhost.conf.erb',
+          :path => 'nginx_vhost',
+          :mode => 0755,
+          :owner => 'root:root'}
 
       ]
-       
+
       desc "Generate Passenger apache configs (system & project level)."
       task :config_gen do
         # config_gen_system 
@@ -107,7 +116,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       desc "Push Passenger configs (project level) to server"
       task :config_project, :roles => :app do
         deprec2.push_configs(:passenger, PROJECT_CONFIG_FILES[:passenger])
-        symlink_apache_vhost
+        symlink_apache_vhost if web_server_type == :apache
         activate_project
         symlink_logrotate_config
       end
@@ -126,20 +135,20 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
       
       task :activate, :roles => :app do
+        top.deprec.web.activate
         activate_system
         activate_project
+        top.deprec.web.restart
       end
-      
+
       task :activate_system, :roles => :app do
-        sudo "a2enmod passenger"
-        top.deprec.web.reload
+        sudo "a2enmod passenger" if web_server_type == :apache
       end
-      
+
       task :activate_project, :roles => :app do
-        sudo "a2ensite #{application}"
-        top.deprec.web.reload
+        sudo "a2ensite #{application}" if web_server_type == :apache
       end
-      
+
       task :deactivate do
         puts
         puts "******************************************************************"
