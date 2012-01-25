@@ -32,7 +32,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       task :install, :roles => :app do
         install_deps
         gem2.install 'passenger', passenger_version
-        puts "WEB SERVER TYPE IS #{web_server_type} #{web_server_type.class}"
+        run "WEB SERVER TYPE IS #{web_server_type} #{web_server_type.class}"
         exit
         if web_server_type == :nginx
           deprec2.nginx.install
