@@ -68,7 +68,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           :owner => 'root:root'},
 
         {:template => "rails_nginx_vhost.conf.erb",
-          :path => "/usr/local/nginx/conf/vhosts/#{application}.conf",
+          :path => "/usr/local/nginx/conf/vhosts/application.conf",
           :mode => 0644,
           :owner => 'root:root'}
       ]
