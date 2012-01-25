@@ -34,7 +34,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     top.deprec.rails.setup_database
   end
 
-  after 'deploy:symlink', :roles => :app do
+  after 'deploy:update_code', :roles => :app do
     top.deprec.rails.symlink_shared_dirs
     top.deprec.rails.symlink_database_yml unless database_yml_in_scm
     top.deprec.rails.make_writable_by_app
