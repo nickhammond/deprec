@@ -122,7 +122,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       
       # Passenger runs Rails as the owner of this file.
       task :set_owner_of_environment_rb, :roles => :app do
-        sudo "chown #{app_user} #{current_path}/config/environment.rb"
+        sudo "chown #{app_user} #{release_path}/config/environment.rb"
       end
       
       task :symlink_apache_vhost, :roles => :app do
@@ -172,7 +172,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       
       desc "Restart Application"
       task :restart, :roles => :app do
-        run "#{sudo} touch #{current_path}/tmp/restart.txt"
+        run "#{sudo} touch #{release_path}/tmp/restart.txt"
       end
       
       desc "Restart Apache"

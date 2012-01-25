@@ -98,7 +98,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       # XXX This should be restricted a bit to limit what app can write to. - Mike
       desc "set group ownership and permissions on dirs app server needs to write to"
       task :make_writable_by_app, :roles => :app do
-        dirs = "#{shared_path} #{current_path}/tmp #{current_path}/public"
+        dirs = "#{shared_path} #{release_path}/tmp #{release_path}/public"
         sudo "chgrp -R #{app_group} #{dirs}"
         sudo "chmod -R g+w #{dirs}" 
         
