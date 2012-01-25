@@ -191,7 +191,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       task :activate_services do
         top.deprec.web.activate       
         top.deprec.app.activate
-        top.deprec.monit.activate
+        # top.deprec.monit.activate
       end
 
       # database.yml stuff
