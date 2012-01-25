@@ -13,15 +13,20 @@ Capistrano::Configuration.instance(:must_exist).load do
       SRC_PACKAGES[:nginx] = {
         :url => "http://sysoev.ru/nginx/nginx-0.7.59.tar.gz",
         :md5sum => "d981b03b4c3ba43de580553355608b63  nginx-0.7.59.tar.gz",
-        :configure => './configure --sbin-path=/usr/local/sbin --with-http_ssl_module;'
+        :configure => './configure --sbin-path=/usr/local/sbin --with-http_ssl_module'
       }
 
       desc "Install nginx"
       task :install, :roles => :web do
         install_deps
         deprec2.download_src(SRC_PACKAGES[:nginx], src_dir)
-        run "#{sudo} passenger-install-nginx-module _#{passenger_version}_ --auto --extra-configure-flags=--with-http_ssl_module --nginx-source-dir=#{src_dir}" 
-        # deprec2.install_from_src(SRC_PACKAGES[:nginx], src_dir)
+        if app_server_type == :passenger
+          SRC_PACKAGES[:nginx][:configure] += " --add-module=#{passenger_root}/ext/nginx;"
+        else
+          SRC_PACKAGES[:nginx][:configure] += ";"
+        end
+
+        deprec2.install_from_src(SRC_PACKAGES[:nginx], src_dir)
         create_nginx_user
         initial_config
         config_gen
@@ -60,6 +65,11 @@ Capistrano::Configuration.instance(:must_exist).load do
         {:template => 'nothing.conf',
           :path => "/usr/local/nginx/conf/vhosts/nothing.conf",
           :mode => 0644,
+          :owner => 'root:root'},
+
+        {:template => "rails_nginx_vhost.conf.erb",
+          :path => "/usr/local/nginx/conf/vhosts/#{application}.conf",
+          :mode => 0644,
           :owner => 'root:root'}
       ]
 
@@ -68,7 +78,8 @@ Capistrano::Configuration.instance(:must_exist).load do
         {:template => 'logrotate.conf.erb',
          :path => "logrotate.conf", 
          :mode => 0644,
-         :owner => 'root:root'}  
+         :owner => 'root:root'}
+
       ]
 
       task :initial_config, :roles => :web do

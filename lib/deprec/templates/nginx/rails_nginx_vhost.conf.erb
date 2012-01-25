@@ -1,6 +1,19 @@
+<% if passenger_redirect_to_canonical_hostname -%>
+<% (server_alias.split(" ") << domain).each do |server| -%>
+server {
+  # Redirect the non-www to www
+  # <%= no_www = server.gsub(/^www\./,'') %> -> <%= server %>
+  listen 80;
+  server_name <%= no_www %>;
+
+  rewrite ^(.*) http://<%= server %>$1 redirect;
+}
+<% end -%>
+<% end -%>
+
 server {
     listen       80;
-    server_name  <%= domain %> <% 4.times do |counter| %> <%= domain.sub(/.*?\./, "assets#{counter}.") %><% end %>;
+    server_name  <%= domain %> <% 4.times do |counter| %> <%= domain.sub(/.*?\./, "assets#{counter}.") %><% end %> <%= server_alias %>;
     root <%= deploy_to %>/current/public;
     access_log <%= deploy_to %>/shared/log/<%= domain %>-access.log;
     error_log <%= deploy_to %>/shared/log/<%= domain %>-error.log;
@@ -11,11 +24,6 @@ server {
                 break;
         }
         location / {
-                proxy_set_header  X-Real-IP  $remote_addr;
-                proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header Host $http_host;
-                proxy_redirect false;
-
                 if (-f $request_filename/index.html) {
                         rewrite (.*) $1/index.html break;
                 }

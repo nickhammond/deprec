@@ -13,7 +13,13 @@ Capistrano::Configuration.instance(:must_exist).load do
         # Some things Rails needs
         apt.install( { :base => %w(libmysqlclient15-dev sqlite3 libsqlite3-ruby libsqlite3-dev libpq-dev libxslt-dev libxml2-dev) }, :stable)
 
-        top.deprec.web.install        # Uses web_server_type
+        # app.install with passenger runs Passenger's install scripts
+        # which calls out to web.install properly
+        unless web_server_type.to_s.match(/(nginx|apache)/) && 
+          app_server_type == :passenger
+            top.deprec.web.install        # Uses web_server_type
+        end
+
         top.deprec.app.install        # Uses app_server_type
         top.deprec.db.install
         top.deprec.logrotate.install

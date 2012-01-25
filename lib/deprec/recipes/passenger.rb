@@ -32,16 +32,14 @@ Capistrano::Configuration.instance(:must_exist).load do
       task :install, :roles => :app do
         install_deps
         gem2.install 'passenger', passenger_version
-        run "WEB SERVER TYPE IS #{web_server_type} #{web_server_type.class}"
-        exit
         if web_server_type == :nginx
-          deprec2.nginx.install
+          top.deprec.nginx.install
         else
           run "#{sudo} passenger-install-apache2-module _#{passenger_version}_ --auto"
         end
         config_system
       end
-      
+
       # Install dependencies for Passenger
       task :install_deps, :roles => :app do
         apt.install( {:base => %w(libcurl4-openssl-dev apache2-mpm-prefork apache2-prefork-dev libapr1-dev libaprutil1-dev rsync)}, :stable )
@@ -71,12 +69,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         {:template => 'logrotate.conf.erb',
          :path => "logrotate.conf", 
          :mode => 0644,
-         :owner => 'root:root'},
-
-        { :template => 'rails_nginx_vhost.conf.erb',
-          :path => 'nginx_vhost',
-          :mode => 0755,
-          :owner => 'root:root'}
+         :owner => 'root:root'}
 
       ]
 
